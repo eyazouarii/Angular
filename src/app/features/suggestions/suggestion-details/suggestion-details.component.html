@@ -1,0 +1,42 @@
+<p>suggestion-details works!</p>
+<div class="details-container" *ngIf="suggestion; else notFound">
+  <div class="details-card">
+    <div class="details-header">
+      <h1>{{ suggestion.title }}</h1>
+      <span class="badge" [ngClass]="{
+        'accepted': suggestion.status === 'acceptée',
+        'rejected': suggestion.status === 'refusée',
+        'pending': suggestion.status === 'en_attente'
+      }">
+        {{ suggestion.status }}
+      </span>
+    </div>
+
+    <div class="details-content">
+      <p class="category"><strong>Catégorie:</strong> {{ suggestion.category }}</p>
+      <p class="date"><strong>Date:</strong> {{ suggestion.date | date:'dd/MM/yyyy' }}</p>
+      <p class="likes"><strong>Likes:</strong> ❤️ {{ suggestion.nbLikes }}</p>
+      
+      <div class="description">
+        <h3>Description</h3>
+        <p>{{ suggestion.description }}</p>
+      </div>
+    </div>
+
+    <div class="details-actions">
+      <button (click)="goBack()" class="btn-back">
+        ← Retour à la liste
+      </button>
+    </div>
+  </div>
+</div>
+
+<ng-template #notFound>
+  <div class="not-found">
+    <h2>Suggestion non trouvée</h2>
+    <p>La suggestion que vous recherchez n'existe pas.</p>
+    <button (click)="goBack()" class="btn-back">
+      ← Retour à la liste
+    </button>
+  </div>
+</ng-template>
