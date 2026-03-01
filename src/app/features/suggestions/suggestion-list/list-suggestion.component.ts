@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Suggestion } from '../../../models/suggestion';  // ← Chemin corrigé (3 points)
+import { Suggestion } from '../../../models/suggestion';  
 @Component({
   selector: 'app-list-suggestion',
   templateUrl: './list-suggestion.component.html',
@@ -49,19 +49,18 @@ export class ListSuggestionComponent {
   searchTerm: string = '';
   selectedCategory: string = '';
 
-  // Fonction pour liker une suggestion
+ 
   likeSuggestion(suggestion: Suggestion): void {
     suggestion.nbLikes++;
   }
 
-  // Fonction pour ajouter aux favoris
+  
   addToFavorites(suggestion: Suggestion): void {
     if (!this.favorites.find(fav => fav.id === suggestion.id)) {
       this.favorites.push(suggestion);
     }
   }
 
-  // Fonction pour filtrer les suggestions
   get filteredSuggestions(): Suggestion[] {
     return this.suggestions.filter(suggestion => {
       const matchesSearch = suggestion.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||

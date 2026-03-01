@@ -39,4 +39,34 @@
       ← Retour à la liste
     </button>
   </div>
+  <div class="details-container" *ngIf="suggestion; else notFound">
+  <!-- Contenu existant... -->
+  
+  <div class="details-actions">
+    <button (click)="goBack()" class="btn-back">
+      ← Retour
+    </button>
+    <a [routerLink]="['/suggestions/edit', suggestion.id]" class="btn-update">
+      ✏️ Modifier
+    </a>
+    <button (click)="deleteSuggestion()" class="btn-delete">
+      🗑️ Supprimer
+    </button>
+  </div>
+</div>
+<div class="details-container" *ngIf="suggestion; else notFound">
+  <!-- Contenu existant... -->
+  
+  <div class="details-actions">
+    <button (click)="goBack()" class="btn-back">
+      ← Retour
+    </button>
+    <a [routerLink]="['/suggestions/edit', suggestion.id]" class="btn-update">
+      ✏️ Modifier
+    </a>
+    <button (click)="deleteSuggestion()" class="btn-delete">
+      🗑️ Supprimer
+    </button>
+  </div>
+</div>
 </ng-template>

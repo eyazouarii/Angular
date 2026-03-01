@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Suggestion } from '../../../models/suggestion';
+import { SuggestionService } from '../../../core/services/suggestion.service';
 
 @Component({
   selector: 'app-suggestion-form',
@@ -10,6 +11,9 @@ import { Suggestion } from '../../../models/suggestion';
 })
 export class SuggestionFormComponent implements OnInit {
   suggestionForm!: FormGroup;
+  isEditMode: boolean = false;
+  suggestionId?: number;
+  
   categories: string[] = [
     'Infrastructure et bâtiments',
     'Technologie et services numériques',
@@ -23,16 +27,22 @@ export class SuggestionFormComponent implements OnInit {
     'Autre'
   ];
 
-  // Pour simuler un auto-increment (dans un vrai projet, ce serait fait par le backend)
-  private lastId = 4; // À adapter selon votre dernière suggestion
-
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private route: ActivatedRoute,
+    private router: Router,
+    private suggestionService: SuggestionService
   ) {}
 
   ngOnInit(): void {
     this.initForm();
+    
+    // Vérifier si on est en mode édition
+    this.suggestionId = this.route.snapshot.params['id'];
+    if (this.suggestionId) {
+      this.isEditMode = true;
+      this.loadSuggestion(this.suggestionId);
+    }
   }
 
   initForm(): void {
@@ -55,6 +65,25 @@ export class SuggestionFormComponent implements OnInit {
     });
   }
 
+  loadSuggestion(id: number): void {
+    this.suggestionService.getSuggestionById(id).subscribe({
+      next: (suggestion) => {
+        // Remplir le formulaire avec les données existantes
+        this.suggestionForm.patchValue({
+          title: suggestion.title,
+          description: suggestion.description,
+          category: suggestion.category,
+          date: this.formatDate(new Date(suggestion.date)),
+          status: suggestion.status
+        });
+      },
+      error: (err) => {
+        console.error('Erreur chargement suggestion', err);
+        this.router.navigate(['/suggestions']);
+      }
+    });
+  }
+
   formatDate(date: Date): string {
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -64,33 +93,41 @@ export class SuggestionFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.suggestionForm.valid) {
-      // Récupérer les valeurs du formulaire (y compris les champs désactivés)
       const formValue = this.suggestionForm.getRawValue();
       
-      // Créer la nouvelle suggestion
-      const newSuggestion: Suggestion = {
-        id: ++this.lastId,
+      const suggestion: Partial<Suggestion> = {
         title: formValue.title,
         description: formValue.description,
         category: formValue.category,
-        date: new Date(), // Date système
+        date: new Date(),
         status: 'en attente',
         nbLikes: 0
       };
 
-      // Récupérer la liste existante du localStorage ou d'un service
-      // Pour l'exemple, on va juste afficher dans la console
-      console.log('Nouvelle suggestion:', newSuggestion);
-      
-      // Ici vous devriez ajouter à votre liste de suggestions
-      // Via un service partagé entre les composants
-      
-      // Rediriger vers la liste
-      this.router.navigate(['/suggestions']);
+      if (this.isEditMode && this.suggestionId) {
+        // Mode édition
+        this.suggestionService.updateSuggestion(this.suggestionId, suggestion as Suggestion).subscribe({
+          next: () => {
+            this.router.navigate(['/suggestions', this.suggestionId]);
+          },
+          error: (err) => {
+            console.error('Erreur mise à jour', err);
+          }
+        });
+      } else {
+        // Mode création
+        this.suggestionService.addSuggestion(suggestion as Suggestion).subscribe({
+          next: (newSuggestion) => {
+            this.router.navigate(['/suggestions', newSuggestion.id]);
+          },
+          error: (err) => {
+            console.error('Erreur ajout', err);
+          }
+        });
+      }
     }
   }
 
-  // Getters pour faciliter l'accès aux champs dans le template
   get title() { return this.suggestionForm.get('title'); }
   get description() { return this.suggestionForm.get('description'); }
   get category() { return this.suggestionForm.get('category'); }

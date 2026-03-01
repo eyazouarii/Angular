@@ -1,14 +1,13 @@
 <p>list-suggestion works!</p>
 
 <div class="container">
-  <h2>Liste des Suggestions</h2>
-  <div class="container">
   <div class="header-with-button">
     <h2>Liste des Suggestions</h2>
     <button class="btn-add" routerLink="/suggestions/new">
       ➕ Ajouter une suggestion
     </button>
   </div>
+  
   <!-- Barre de recherche -->
   <div class="search-bar">
     <input 
@@ -52,20 +51,27 @@
         </p>
         <p class="likes">❤️ {{ suggestion.nbLikes }} likes</p>
         
-        <!-- Boutons Like et Favoris -->
-        <div *ngIf="suggestion.status !== 'refusée'" class="buttons">
-          <button 
-            (click)="likeSuggestion(suggestion)" 
-            class="btn-like"
-          >
-            👍 Like
+        <!-- ✅ TOUS LES BOUTONS ICI, DANS LA BOUCLE -->
+        <div class="buttons">
+          <!-- Bouton Détails (toujours visible) -->
+          <a [routerLink]="['/suggestions', suggestion.id]" class="btn-details">
+            🔍 Détails
+          </a>
+          
+          <!-- Bouton Supprimer (toujours visible) -->
+          <button (click)="deleteSuggestion(suggestion.id)" class="btn-delete">
+            🗑️ Supprimer
           </button>
-          <button 
-            (click)="addToFavorites(suggestion)" 
-            class="btn-favorite"
-          >
-            ⭐ Ajouter aux favoris
-          </button>
+          
+          <!-- Boutons Like et Favoris (seulement si status ≠ refusée) -->
+          <div *ngIf="suggestion.status !== 'refusée'" class="action-buttons">
+            <button (click)="likeSuggestion(suggestion)" class="btn-like">
+              👍 Like
+            </button>
+            <button (click)="addToFavorites(suggestion)" class="btn-favorite">
+              ⭐ Ajouter aux favoris
+            </button>
+          </div>
         </div>
       </div>
     </div>
